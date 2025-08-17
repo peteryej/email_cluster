@@ -15,7 +15,7 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 # Import our modules
 from config import Config
 from database.models import DatabaseManager
-from auth.oauth import GmailOAuth
+from auth.authentication import GmailAuthenticator
 from api.routes import api, init_api
 
 def create_app():
@@ -33,8 +33,8 @@ def create_app():
     # Initialize database
     db_manager = DatabaseManager(Config.DATABASE_PATH)
     
-    # Initialize OAuth handler
-    oauth_handler = GmailOAuth(db_manager)
+    # Initialize authentication handler
+    oauth_handler = GmailAuthenticator(db_manager)
     
     # Initialize API routes
     init_api(db_manager, oauth_handler)
