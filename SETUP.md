@@ -34,27 +34,50 @@ This guide will help you set up and deploy the Gmail Email Clustering applicatio
 2. Search for "Gmail API"
 3. Click on "Gmail API" and click "Enable"
 
-#### Step 3: Create OAuth2 Credentials
+#### Step 3: Configure OAuth Consent Screen
+1. Go to "APIs & Services" → "OAuth consent screen"
+2. Choose "External" user type and click "Create"
+3. Fill in the OAuth consent screen details:
+   - **App name**: `Gmail Email Clustering`
+   - **User support email**: Your email address
+   - **App logo**: (Optional) Upload a logo
+   - **App domain**: Leave blank for now
+   - **Authorized domains**: Leave blank for desktop app
+   - **Developer contact information**: Your email address
+4. Click "Save and Continue"
+5. On the "Scopes" page, click "Add or Remove Scopes":
+   - Search for and add: `https://www.googleapis.com/auth/gmail.readonly`
+   - Search for and add: `https://www.googleapis.com/auth/gmail.modify`
+   - Click "Update" then "Save and Continue"
+6. On the "Test users" page, click "Add Users":
+   - Add your Gmail address that you'll use to test the app
+   - Click "Save and Continue"
+7. Review the summary and click "Back to Dashboard"
+
+#### Step 4: Create OAuth2 Desktop App Credentials
 1. Go to "APIs & Services" → "Credentials"
 2. Click "Create Credentials" → "OAuth client ID"
-3. If prompted, configure the OAuth consent screen:
-   - Choose "External" user type
-   - Fill in required fields:
-     - App name: `Gmail Email Clustering`
-     - User support email: your email
-     - Developer contact: your email
-   - Add scopes: `../auth/gmail.readonly` and `../auth/gmail.modify`
-   - Add test users: your Gmail address
-4. For OAuth client ID:
-   - Application type: "Desktop application"
-   - Name: `Gmail Clustering Client`
+3. Select **Application type**: "Desktop application"
+4. **Name**: `Gmail Clustering Desktop Client`
 5. Click "Create"
-6. Download the JSON file and save it as `credentials.json` in the project root
+6. **Important**: Download the credentials JSON file immediately
+7. **Rename** the downloaded file to `credentials.json`
+8. **Copy** this file to the root directory of your project (same folder as this SETUP.md)
 
-#### Step 4: Configure Redirect URI
-1. Edit your OAuth2 client
-2. Add authorized redirect URI: `http://your-server-ip/api/auth/callback`
-3. For local testing: `http://localhost:5000/api/auth/callback`
+**Note**: For desktop applications, you don't need to configure redirect URIs - Google handles this automatically with a local redirect mechanism.
+
+#### Understanding Desktop App Authentication Flow
+
+With desktop app credentials, the authentication process works as follows:
+
+1. **User clicks "Login with Gmail"** in the web interface
+2. **App generates authorization URL** that opens in user's browser
+3. **User authorizes the app** in Google's consent screen
+4. **Google shows authorization code** to the user (instead of redirecting)
+5. **User copies the code** and pastes it back into the app
+6. **App exchanges the code** for access tokens
+
+This is more secure than web app flow for server-based applications and doesn't require configuring redirect URIs.
 
 ### 2. Server Setup
 
@@ -91,7 +114,7 @@ nltk.download('stopwords', quiet=True)
 "
 
 # Run development server
-python backend/app.py
+source venv/bin/activate && python3 backend/app.py
 ```
 
 ### 3. Configuration
@@ -112,14 +135,16 @@ SECRET_KEY=your-secret-key   # Auto-generated in production
 ### 4. Testing the Application
 
 #### Local Testing
-1. Set up credentials with redirect URI: `http://localhost:5000/api/auth/callback`
-2. Run: `python backend/app.py`
+1. Ensure `credentials.json` is in the project root directory
+2. Run: `source venv/bin/activate && python3 backend/app.py`
 3. Visit: `http://localhost:5000`
+4. Click "Login with Gmail" and follow the desktop app authentication flow
 
 #### Production Testing
-1. Set up credentials with redirect URI: `http://your-server-ip/api/auth/callback`
+1. Ensure `credentials.json` is in the project root directory
 2. Deploy with: `sudo ./deploy.sh`
 3. Visit: `http://your-server-ip`
+4. Click "Login with Gmail" and follow the desktop app authentication flow
 
 ### 5. Usage Instructions
 
@@ -158,10 +183,11 @@ gmail-email-clustering/
 - Save as `credentials.json` in project root
 - Ensure file has correct JSON format
 
-#### 2. "OAuth2 redirect URI mismatch"
-- Check redirect URI in Google Cloud Console matches your server
-- For local: `http://localhost:5000/api/auth/callback`
-- For production: `http://your-server-ip/api/auth/callback`
+#### 2. "OAuth2 authentication failed" 
+- Ensure you're using **Desktop application** credentials from Google Cloud Console
+- Verify the OAuth consent screen is properly configured with correct scopes
+- Make sure your Gmail address is added as a test user
+- Check that you're copying the full authorization code (no extra spaces)
 
 #### 3. "Failed to connect to Gmail IMAP"
 - Ensure Gmail API is enabled in Google Cloud Console
@@ -185,7 +211,7 @@ gmail-email-clustering/
 sudo journalctl -u gmail-clustering.service -f
 
 # For development
-python backend/app.py  # Check console output
+source venv/bin/activate && python3 backend/app.py  # Check console output
 ```
 
 #### Check Service Status
