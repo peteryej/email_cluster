@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gmail Email Clustering</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+    <div id="app">
+        <!-- Header -->
+        <header class="header">
+            <div class="container">
+                <h1 class="logo">📧 Gmail Email Clustering</h1>
+                <div id="auth-section" class="auth-section">
+                    <!-- Authentication buttons will be inserted here -->
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main">
+            <div class="container">
+                <!-- Welcome Section -->
+                <section id="welcome-section" class="welcome-section">
+                    <div class="welcome-content">
+                        <h2>Organize Your Gmail Inbox</h2>
+                        <p>Automatically cluster your last 200 emails into actionable groups using advanced machine learning. Archive entire clusters with one click!</p>
+                        <div class="features">
+                            <div class="feature">
+                                <span class="feature-icon">🔐</span>
+                                <h3>Secure OAuth2</h3>
+                                <p>Safe authentication with Google</p>
+                            </div>
+                            <div class="feature">
+                                <span class="feature-icon">🤖</span>
+                                <h3>Smart Clustering</h3>
+                                <p>TF-IDF + K-means algorithm</p>
+                            </div>
+                            <div class="feature">
+                                <span class="feature-icon">📁</span>
+                                <h3>One-Click Archive</h3>
+                                <p>Archive entire groups instantly</p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Email Input Section -->
+                <section id="email-input-section" class="email-input-section hidden">
+                    <div class="input-card">
+                        <h3>Enter Your Gmail Address</h3>
+                        <p>We need your email address to fetch and organize your emails.</p>
+                        <div class="input-group">
+                            <input type="email" id="email-input" placeholder="your.email@gmail.com" required>
+                            <button id="fetch-emails-btn" class="btn btn-primary">
+                                <span class="btn-text">Fetch & Cluster Emails</span>
+                                <span class="btn-spinner hidden">⏳</span>
+                            </button>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Loading Section -->
+                <section id="loading-section" class="loading-section hidden">
+                    <div class="loading-card">
+                        <div class="loading-spinner"></div>
+                        <h3 id="loading-title">Processing your emails...</h3>
+                        <p id="loading-message">This may take a few moments</p>
+                        <div class="loading-steps">
+                            <div class="step" id="step-fetch">
+                                <span class="step-icon">📥</span>
+                                <span class="step-text">Fetching emails from Gmail</span>
+                                <span class="step-status">⏳</span>
+                            </div>
+                            <div class="step" id="step-process">
+                                <span class="step-icon">🔄</span>
+                                <span class="step-text">Processing and analyzing content</span>
+                                <span class="step-status">⏳</span>
+                            </div>
+                            <div class="step" id="step-cluster">
+                                <span class="step-icon">🎯</span>
+                                <span class="step-text">Creating smart clusters</span>
+                                <span class="step-status">⏳</span>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Clusters Section -->
+                <section id="clusters-section" class="clusters-section hidden">
+                    <div class="clusters-header">
+                        <h2>Your Email Clusters</h2>
+                        <p id="clusters-summary">Found <span id="cluster-count">0</span> clusters from <span id="email-count">0</span> emails</p>
+                        <div class="clusters-actions">
+                            <button id="refresh-btn" class="btn btn-secondary">🔄 Refresh</button>
+                            <button id="new-analysis-btn" class="btn btn-outline">📊 New Analysis</button>
+                        </div>
+                    </div>
+                    <div id="clusters-container" class="clusters-container">
+                        <!-- Clusters will be inserted here -->
+                    </div>
+                </section>
+
+                <!-- Error Section -->
+                <section id="error-section" class="error-section hidden">
+                    <div class="error-card">
+                        <div class="error-icon">⚠️</div>
+                        <h3>Something went wrong</h3>
+                        <p id="error-message">An unexpected error occurred</p>
+                        <button id="retry-btn" class="btn btn-primary">Try Again</button>
+                    </div>
+                </section>
+            </div>
+        </main>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <div class="container">
+                <p>&copy; 2024 Gmail Email Clustering. Secure email organization powered by machine learning.</p>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Email Preview Modal -->
+    <div id="email-modal" class="modal hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modal-subject">Email Subject</h3>
+                <button id="modal-close" class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="email-meta">
+                    <p><strong>From:</strong> <span id="modal-sender"></span></p>
+                    <p><strong>Date:</strong> <span id="modal-date"></span></p>
+                </div>
+                <div class="email-body">
+                    <p id="modal-body"></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Archive Confirmation Modal -->
+    <div id="archive-modal" class="modal hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Archive Cluster</h3>
+                <button id="archive-modal-close" class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to archive all <span id="archive-email-count">0</span> emails in the "<span id="archive-cluster-name"></span>" cluster?</p>
+                <p class="archive-warning">This will remove these emails from your Gmail inbox and move them to All Mail.</p>
+                <div class="modal-actions">
+                    <button id="confirm-archive-btn" class="btn btn-danger">Archive Emails</button>
+                    <button id="cancel-archive-btn" class="btn btn-secondary">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/static/js/app.js"></script>
+</body>
+</html>
